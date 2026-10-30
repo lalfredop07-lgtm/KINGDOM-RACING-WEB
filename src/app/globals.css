@@ -1,0 +1,292 @@
+@import "tailwindcss";
+
+/* ───────────────── Design tokens ───────────────── */
+@theme {
+  --font-serif: var(--font-instrument), "Times New Roman", serif;
+  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+
+  --color-paper: #f4f1ec;
+  --color-paper-2: #ebe6de;
+  --color-bone: #dcd5ca;
+  --color-ink: #0d0d0e;
+  --color-ink-2: #161618;
+  --color-ink-3: #232326;
+  --color-stone: #77716a;
+  --color-red: #d4142a;
+  --color-red-deep: #a10e1f;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* Surface colors are registered so the whole canvas can cross-fade between light and dark. */
+@property --bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #0d0d0e;
+}
+@property --fg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f4f1ec;
+}
+@property --fg-mute {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(244, 241, 236, 0.64);
+}
+@property --line {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(244, 241, 236, 0.16);
+}
+
+:root {
+  --bg: var(--color-paper);
+  --fg: var(--color-ink);
+  --fg-mute: rgba(13, 13, 14, 0.62);
+  --line: rgba(13, 13, 14, 0.14);
+  /* viewport-fit=cover: in landscape the gutter also clears the notch / rounded corners. */
+  --gutter: max(clamp(1.25rem, 4vw, 4rem), env(safe-area-inset-left), env(safe-area-inset-right));
+  --nav-h: 5rem;
+}
+
+html[data-surface="dark"] {
+  --bg: #0d0d0e;
+  --fg: #f4f1ec;
+  --fg-mute: rgba(244, 241, 236, 0.64);
+  --line: rgba(244, 241, 236, 0.16);
+}
+
+html {
+  background: var(--bg);
+  color: var(--fg);
+  transition:
+    --bg 0.9s var(--ease-out-expo),
+    --fg 0.9s var(--ease-out-expo),
+    --fg-mute 0.9s var(--ease-out-expo),
+    --line 0.9s var(--ease-out-expo);
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--color-red);
+  color: #fff;
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+/* ───────────────── Typography ───────────────── */
+@utility display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  font-kerning: normal;
+}
+
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+@utility micro {
+  font-family: var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+/* Phones: the small uppercase labels step up so they read without zooming. */
+@media (max-width: 639px) {
+  .micro {
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+  }
+  .eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.26em;
+  }
+}
+
+@utility text-mute {
+  color: var(--fg-mute);
+}
+
+@utility border-line {
+  border-color: var(--line);
+}
+
+@utility bg-line {
+  background-color: var(--line);
+}
+
+@utility gutter {
+  padding-inline: var(--gutter);
+}
+
+/* Fluid display scale */
+.t-hero {
+  font-size: clamp(4.25rem, min(13.5vw, 19svh), 13.5rem);
+}
+.t-1 {
+  font-size: clamp(3rem, 8.2vw, 8.5rem);
+}
+.t-2 {
+  font-size: clamp(2.6rem, 6vw, 6rem);
+}
+.t-3 {
+  font-size: clamp(2.1rem, 4.2vw, 4.25rem);
+}
+.t-4 {
+  font-size: clamp(1.6rem, 2.6vw, 2.6rem);
+}
+.t-lead {
+  font-size: clamp(1.05rem, 1.25vw, 1.25rem);
+  line-height: 1.6;
+}
+
+/* SplitText helpers: masks must not clip descenders of the serif. */
+.split-line {
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+/* Per-letter masks (home hero) are as wide as each letter, but italic glyphs lean past their
+   box; side room keeps the P and e of "People." whole without moving any letter. */
+.hero-char-mask {
+  padding-inline: 0.16em;
+  margin-inline: -0.16em;
+}
+
+/* Hide animated content until GSAP takes over, unless motion is reduced or JS is off. */
+html.js-motion [data-reveal] {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--color-red);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Film grain overlay for cinematic sections */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.55'/></svg>");
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  animation: grain 1.2s steps(6) infinite;
+}
+
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -3%); }
+  60% { transform: translate(-2%, -1%); }
+  80% { transform: translate(3%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Header tone follows the section directly under it, independent of the canvas surface. */
+html {
+  --nav-fg: #f4f1ec;
+  --nav-bg: #0d0d0e;
+}
+html[data-nav="light"] {
+  --nav-fg: #0d0d0e;
+  --nav-bg: #f4f1ec;
+}
+html[data-nav="dark"] .nav-logo .logo-dark { display: none; }
+html[data-nav="dark"] .nav-logo .logo-light { display: block; }
+html[data-nav="light"] .nav-logo .logo-dark { display: block; }
+html[data-nav="light"] .nav-logo .logo-light { display: none; }
+
+/* A section that keeps its own light palette even while the canvas is still dark. */
+.surface-light {
+  --bg: #f4f1ec;
+  --fg: #0d0d0e;
+  --fg-mute: rgba(13, 13, 14, 0.62);
+  --line: rgba(13, 13, 14, 0.14);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* Red text on dark surfaces uses a brighter red: 5.5:1 on ink (WCAG AA), where the brand red is 3.6:1.
+   Red fills, rules, and red text on light surfaces keep the brand red. */
+[data-theme="dark"] .text-red,
+.bg-ink .text-red {
+  color: #ff3b4f;
+}
+
+/* Lower-powered devices skip the purely decorative per-frame effects. */
+.low-power .grain::after { display: none; }
+
+/* Logo swap by surface */
+.logo-dark { display: block; }
+.logo-light { display: none; }
+html[data-surface="dark"] .logo-dark { display: none; }
+html[data-surface="dark"] .logo-light { display: block; }
+[data-nav-tone="light"] .logo-dark { display: none !important; }
+[data-nav-tone="light"] .logo-light { display: block !important; }
+
+/* Hide scrollbars on horizontal touch rails */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+@media (hover: none) {
+  .hover-only { display: none !important; }
+}
+
+@keyframes scrollcue {
+  0% { transform: translateY(-100%); }
+  60%, 100% { transform: translateY(200%); }
+}
+
+.shell {
+  max-width: 1680px;
+  margin-inline: auto;
+}
